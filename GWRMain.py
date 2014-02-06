@@ -7,6 +7,8 @@ if len(sys.argv) >= 3:
     args = sys.argv
     mode_arg = args[args.index("-mode")+1]
     print mode_arg
+
+    #############Build Reference File Mode###############
     if mode_arg.lower() == "build_ref_files":
         import BuildRef
         print "Building Reference Files"
@@ -19,8 +21,12 @@ if len(sys.argv) >= 3:
         BuildRef.Build_ref_files(tf, rf_std_out, rf_obs_out)
         print "~~~~~~~~~Building Complete~~~~~~~~"
         print "Check: ", rf_std_out, " AND ", rf_obs_out
+
+
+    #############Create Weighted(u) matrix and Y(u) vector files################
     if mode_arg.lower() == "create_wu_y":
         import CreateWu_Y
+        print "Creating Weight and Y vector files"
         if '-tf' in args:
             f = args[args.index("-tf")+1]
         elif '-df' in args:
@@ -57,6 +63,28 @@ if len(sys.argv) >= 3:
         w_y_direct = args[args.index("-wu_y_dir_out")+1]
 
         CreateWu_Y.create(f, w_y_direct, ulist, kerntype, dist, conn)
+
+    #################Create and Load Database With People/Documents####################
+    if mode_arg.lower() == "db_load":
+        import DB_Load
+        print "Beginning DB Loading Process"
+
+        if '-tf' in args:
+            f = args[args.index("-tf")+1]
+        elif '-df' in args:
+            f = args[args.index("-df")+1]
+        elif '-tstf' in args:
+            f = args[args.index("-tstf")+1]
+
+        tbl_name = args[args.index("-ptbl")+1]
+
+        try:
+            conn = args[args.index('-conn')+1]
+        except:
+            print "Problem parsing the connection information provided"
+
+
+        DB_Load.load(f, tbl, conn)
             
         
     #except:
@@ -67,6 +95,7 @@ elif "-help" in sys.argv:
     print "---------------------"
     print "MODE ARGUMENTS"
     print "-mode"
+    print "db_load ((-tf OR -df OR -tstf), -conn, -tbl)"
     print "Build_ref_files (-tf, -rf_std_out, -rf_obs_out)"
     print "Create_Wu ((-tf OR -df OR -tstf), -kern, -ulist, -wu_dir_out)"
     print "Create_Y ((-tf OR -df OR -tstf), -ulist, -y_dir_out)"
@@ -162,6 +191,11 @@ elif "-help" in sys.argv:
     print "Kernel Function (OPTIONAL)(defaults to quartic_900000) (<method>_<number_of_meters>)"
     print "-kern"
     print "e.g. quartic, epanech, quartic_zeroed, epanech_zeroed"
+
+    print "---------------------"
+    print "-Person Table: name of person table that you are creating/reading from in postgres"
+    print "-ptbl"
+    print "i.e. do not begin with symbols/numbers and avoid upper case"
 
     
     
