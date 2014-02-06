@@ -63,6 +63,6 @@ def create(f, w_y_direct, ulist, kerntype, dist, conn_info):
     print "Successful Import"
 
     #Connecting to Database
-    conn = pyscopg2.connect(conn_info)
+    conn = psycopg2.connect(conn_info)
     print "Connecton Success"
     

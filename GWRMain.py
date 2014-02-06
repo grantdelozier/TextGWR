@@ -19,7 +19,7 @@ if len(sys.argv) >= 3:
         BuildRef.Build_ref_files(tf, rf_std_out, rf_obs_out)
         print "~~~~~~~~~Building Complete~~~~~~~~"
         print "Check: ", rf_std_out, " AND ", rf_obs_out
-    if mode.arg.lower() == "create_wu_y":
+    if mode_arg.lower() == "create_wu_y":
         import CreateWu_Y
         if '-tf' in args:
             f = args[args.index("-tf")+1]
@@ -50,7 +50,9 @@ if len(sys.argv) >= 3:
             sys.exit("Error")
 
         try:
-            conn - args[args.index('-conn')+1]
+            conn = args[args.index('-conn')+1]
+        except:
+            print "Problem parsing the connection information provided"
 
         w_y_direct = args[args.index("-wu_y_dir_out")+1]
 
