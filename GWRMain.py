@@ -49,9 +49,12 @@ if len(sys.argv) >= 3:
             print "it should be something like 400,8,3000 with no spaces between the numbers"
             sys.exit("Error")
 
+        try:
+            conn - args[args.index('-conn')+1]
+
         w_y_direct = args[args.index("-wu_y_dir_out")+1]
 
-        CreateWu_Y.create(f, w_y_direct, ulist, kern)
+        CreateWu_Y.create(f, w_y_direct, ulist, kerntype, dist, conn)
             
         
     #except:
