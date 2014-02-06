@@ -33,7 +33,7 @@ class Person:
         print self.total_words
         print self.Feature_Prob
 
-def Load(tf, tbl_name, conn):
+def Load(tf, tbl_name, conn_info):
 
     #Connecting to Database
     conn = psycopg2.connect(conn_info)
@@ -61,7 +61,7 @@ def Load(tf, tbl_name, conn):
             #print "####NEW Person####"
             #print userID, latit, longit
             try:
-                row = person.split('\t')
+                row = person.strip().split('\t')
                 #print row[0]
                 userID = row[0]
                 latit = row[1].split(',')[0]
@@ -70,14 +70,14 @@ def Load(tf, tbl_name, conn):
                 #F_All = dict(chain(F_Freq.iteritems(), F_All.iteritems()))
                 #print len(F_Freq)
                 #F_Freq = {}
-                newPerson = Person(userID, latit, longit, F_Freq, filename, F_All_Len)
+                newPerson = Person(userID, latit, longit, F_Freq, filename)
                 #newPerson.CalcProb('smoothed', 30, False, F_All_Len)
                 personList.append(newPerson)
             except:
                 print "@@@@@error reading user@@@@@@"
                 print row
                 print z
-                break
+                #break
             z += 1
             if z % 5000 == 0:
                 print z
@@ -88,6 +88,22 @@ def Load(tf, tbl_name, conn):
     read_time_end = datetime.datetime.now()
     print read_time_end - read_time_begin
 
-    
+    cur = conn.cursor()
+
+    cur.execute("CREATE TABLE IF NOT EXISTS %s (uid varchar(20) primary key, latit float, longit float, total_words integer, coord geometry(Point, 4326), filefrom varchar(50));" % (tbl_name, ))
+
+    cur.execute("DELETE FROM %s" % tbl_name)
+   
+    for p in personList:
+        SQL1 = "INSERT INTO %s VALUES (%s, %s, %s, %s, ST_GeomFromText('POINT(%s %s)', 4326), %s);" % (tbl_name, '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+        data = (p.userID, float(p.userLat), float(p.userLong), p.total_words, float(p.userLong), float(p.userLat), p.fileFrom)
+        cur.execute(SQL1, data)
+
+    conn.commit()
+    conn.close()
+
+    print "Number of people loaded: ", len(personList)
+
+    print "Done Loading ", tbl_name
     
     

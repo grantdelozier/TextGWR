@@ -84,7 +84,7 @@ if len(sys.argv) >= 3:
             print "Problem parsing the connection information provided"
 
 
-        DB_Load.load(f, tbl, conn)
+        DB_Load.Load(f, tbl_name, conn)
             
         
     #except:
