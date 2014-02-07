@@ -18,7 +18,11 @@ if len(sys.argv) >= 3:
         print rf_std_out
         rf_obs_out = args[args.index("-rf_obs_out")+1]
         print rf_obs_out
-        BuildRef.Build_ref_files(tf, rf_std_out, rf_obs_out)
+        if '-wordlist' in args:
+            wordlist = args[args.index("-wordlist")+1]
+        else: wordlist = 'any'
+        
+        BuildRef.Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist)
         print "~~~~~~~~~Building Complete~~~~~~~~"
         print "Check: ", rf_std_out, " AND ", rf_obs_out
 
@@ -96,7 +100,7 @@ elif "-help" in sys.argv:
     print "MODE ARGUMENTS"
     print "-mode"
     print "db_load ((-tf OR -df OR -tstf), -conn, -tbl)"
-    print "Build_ref_files (-tf, -rf_std_out, -rf_obs_out)"
+    print "Build_ref_files (-tf, -rf_std_out, -rf_obs_out, -wordlist(OPTIONAL))"
     print "Create_Wu ((-tf OR -df OR -tstf), -kern, -ulist, -wu_dir_out)"
     print "Create_Y ((-tf OR -df OR -tstf), -ulist, -y_dir_out)"
     print "Create_Wu_Y ((-tf OR -df OR -tstf), -kern, -ulist, -wu_y_dir_out)"
@@ -196,6 +200,12 @@ elif "-help" in sys.argv:
     print "-Person Table: name of person table that you are creating/reading from in postgres"
     print "-ptbl"
     print "i.e. do not begin with symbols/numbers and avoid upper case"
+
+    print "---------------------"
+    print "-Word List File: name of a file that contains words (one per line) that you want to include in the model"
+    print "-wordlist"
+    print "OPTIONAL: if left unspecified will default to all possible words in the train file"
+    print "Should be an absolute path"
 
     
     
