@@ -31,25 +31,20 @@ if len(sys.argv) >= 3:
     if mode_arg.lower() == "create_wu_y":
         import CreateWu_Y
         print "Creating Weight and Y vector files"
-        if '-tf' in args:
-            f = args[args.index("-tf")+1]
-        elif '-df' in args:
-            f = args[args.index("-df")+1]
-        elif '-tstf' in args:
-            f = args[args.index("-tstf")+1]
+
         try:
             if '-kern' in args:
                 fullarg = args[args.index("-kern")+1]
                 kerntype = fullarg[:fullarg.rfind('_')]
                 print kerntype
-                dist = float(fullarg[fullarg.rfind('_'):])
+                dist = float(fullarg[fullarg.rfind('_')+1:])
                 print dist
             else:
                 kerntype = 'quartic'
                 dist = 900000.0
         except:
             print "Kernel Argument is not formmated correctly"
-            print "it should be something like quartic_900000 or quartic_zeroed_900000 (units must be meters)"
+            print "it should be something like quartic_900000 or epanech_800000 (units must be meters)"
             print "run with -help for more options"
             sys.exit("Error")
         try:
@@ -60,13 +55,33 @@ if len(sys.argv) >= 3:
             sys.exit("Error")
 
         try:
+            ptbl = args[args.index("-ptbl")+1]
+        except:
+            print "ERROR ON -ptbl argument"
+            print "This argument should contain the name of the table which was created using DB_Load"
+            sys.exit("Error")
+
+        if '-pointgrid' in args:
+            pointgrid = args[args.index("-pointgrid")+1]
+        else: pointgrid = 'pointgrid_5_clip'
+            
+        try:
             conn = args[args.index('-conn')+1]
         except:
             print "Problem parsing the connection information provided"
 
+        if '-zeroed' in args:
+            zval = args[args.index('-zeroed')+1]
+            if zval.lower() == 'f':
+                zeroed = False
+            else: zeroed = True
+        else: zeroed = True
+
+        rf_obs_in = args[args.index("-rf_obs_in")+1]
+
         w_y_direct = args[args.index("-wu_y_dir_out")+1]
 
-        CreateWu_Y.create(f, w_y_direct, ulist, kerntype, dist, conn)
+        CreateWu_Y.create(w_y_direct, ulist, kerntype, dist, conn, ptbl, pointgrid, zeroed, rf_obs_in)
 
     #################Create and Load Database With People/Documents####################
     if mode_arg.lower() == "db_load":
@@ -101,9 +116,9 @@ elif "-help" in sys.argv:
     print "-mode"
     print "db_load ((-tf OR -df OR -tstf), -conn, -tbl)"
     print "Build_ref_files (-tf, -rf_std_out, -rf_obs_out, -wordlist(OPTIONAL))"
-    print "Create_Wu ((-tf OR -df OR -tstf), -kern, -ulist, -wu_dir_out)"
-    print "Create_Y ((-tf OR -df OR -tstf), -ulist, -y_dir_out)"
-    print "Create_Wu_Y ((-tf OR -df OR -tstf), -kern, -ulist, -wu_y_dir_out)"
+    print "NOT FUNCTIONAL: Create_Wu ((-tf OR -df OR -tstf), -kern, -ulist, -wu_dir_out)"
+    print "NOT FUNCTIONAL: Create_Y ((-tf OR -df OR -tstf), -ulist, -y_dir_out)"
+    print "Create_Wu_Y (-ptbl, -conn, -pointgrid(OPTIONAL), -kern(OPTIONAL), -zeroed(OPTOINAL), -ulist, -wu_y_dir_out, -rf_obs_in)"
     print "Train (-tf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -lambda))"
     print "Test (-tstf, -rf_std_in, -b_dir_in, -pred_out)"
     print "Train_Test (-tf, -tstf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -pred_out, -lambda))"
@@ -194,7 +209,12 @@ elif "-help" in sys.argv:
     print "---------------------"
     print "Kernel Function (OPTIONAL)(defaults to quartic_900000) (<method>_<number_of_meters>)"
     print "-kern"
-    print "e.g. quartic, epanech, quartic_zeroed, epanech_zeroed"
+    print "e.g. quartic, epanech"
+
+    print "---------------------"
+    print "-Zeroed Kernel (OPTIONAL)"
+    print "-zeroed"
+    print "e.g. -zeroed F"
 
     print "---------------------"
     print "-Person Table: name of person table that you are creating/reading from in postgres"
