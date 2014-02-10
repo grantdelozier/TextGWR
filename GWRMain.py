@@ -20,9 +20,13 @@ if len(sys.argv) >= 3:
         print rf_obs_out
         if '-wordlist' in args:
             wordlist = args[args.index("-wordlist")+1]
+            if '-listuse' in args:
+                listuse = args[args.index("-listuse")+1]
+            else: listuse = 'NA'
         else: wordlist = 'any'
+
         
-        BuildRef.Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist)
+        BuildRef.Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist, listuse)
         print "~~~~~~~~~Building Complete~~~~~~~~"
         print "Check: ", rf_std_out, " AND ", rf_obs_out
 
@@ -77,6 +81,7 @@ if len(sys.argv) >= 3:
             else: zeroed = True
         else: zeroed = True
 
+
         rf_obs_in = args[args.index("-rf_obs_in")+1]
 
         w_y_direct = args[args.index("-wu_y_dir_out")+1]
@@ -104,7 +109,95 @@ if len(sys.argv) >= 3:
 
 
         DB_Load.Load(f, tbl_name, conn)
+
+    #################Train the prediction model on given file using GWR####################
+    if mode_arg.lower() == "train":
+        import Train
+        print "Beginning GWR Train Process"
+
+        if '-tf' in args:
+            f = args[args.index("-tf")+1]
+        elif '-df' in args:
+            f = args[args.index("-df")+1]
+        elif '-tstf' in args:
+            f = args[args.index("-tstf")+1]
+
+        rf_obs_in = args[args.index("-rf_obs_in")+1]
+
+        rf_std_in = args[args.index("-rf_std_in")+1]
+
+        wu_y_direct = args[args.index("-wu_y_dir_in")+1]
+
+        b_direct = args[args.index("-b_dir_out")+1]
+
+        if '-lam' in args:
+            lam = float(args[args.index("-lam")+1])
+        else: lam = 0
+
+        try:
+            ulist = (args[args.index("-ulist")+1]).split(',')
+        except:
+            print "Your ulist is not formatted correctly"
+            print "it should be something like 400,8,3000 with no spaces between the numbers"
+            sys.exit("Error")
+
+        try:
+            if '-kern' in args:
+                fullarg = args[args.index("-kern")+1]
+                kerntype = fullarg[:fullarg.rfind('_')]
+                print kerntype
+                dist = float(fullarg[fullarg.rfind('_')+1:])
+                print dist
+            else:
+                kerntype = 'quartic'
+                dist = 900000.0
+        except:
+            print "Kernel Argument is not formmated correctly"
+            print "it should be something like quartic_900000 or epanech_800000 (units must be meters)"
+            print "run with -help for more options"
+            sys.exit("Error")
+
+        Train.train(f, rf_obs_in, rf_std_in, wu_y_direct, ulist, kerntype, lam, b_direct)
+
+    if mode_arg.lower() == "test":
+        import Test
+
+        if '-tf' in args:
+            f = args[args.index("-tf")+1]
+        elif '-df' in args:
+            f = args[args.index("-df")+1]
+        elif '-tstf' in args:
+            f = args[args.index("-tstf")+1]
+
+        rf_std_in = args[args.index("-rf_std_in")+1]
+
+        b_direct = args[args.index("-b_dir_in")+1]
+
+        try:
+            ulist = (args[args.index("-ulist")+1]).split(',')
+        except:
+            print "Your ulist is not formatted correctly"
+            print "it should be something like 400,8,3000 with no spaces between the numbers"
+            sys.exit("Error")
             
+        try:
+            if '-kern' in args:
+                fullarg = args[args.index("-kern")+1]
+                kerntype = fullarg[:fullarg.rfind('_')]
+                print kerntype
+                dist = float(fullarg[fullarg.rfind('_')+1:])
+                print dist
+            else:
+                kerntype = 'quartic'
+                dist = 900000.0
+        except:
+            print "Kernel Argument is not formmated correctly"
+            print "it should be something like quartic_900000 or epanech_800000 (units must be meters)"
+            print "run with -help for more options"
+            sys.exit("Error")
+
+        Test.test(f, rf_std_in, b_direct, ulist, kerntype)
+        
         
     #except:
     #    print "ERROR: THERE WAS A PROBLEM INTERPRETING THE ARGUMENTS"
@@ -120,8 +213,8 @@ elif "-help" in sys.argv:
     print "NOT FUNCTIONAL: Create_Y ((-tf OR -df OR -tstf), -ulist, -y_dir_out)"
     print "Create_Wu_Y (-ptbl, -conn, -pointgrid(OPTIONAL), -kern(OPTIONAL), -zeroed(OPTOINAL), -ulist, -wu_y_dir_out, -rf_obs_in)"
     print "Train (-tf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -lambda))"
-    print "Test (-tstf, -rf_std_in, -b_dir_in, -pred_out)"
-    print "Train_Test (-tf, -tstf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -pred_out, -lambda))"
+    print "NOT FUNCTIONAL: Test (-tstf, -rf_std_in, -b_dir_in, -pred_out)"
+    print "NOT FUNCTIONAL: Train_Test (-tf, -tstf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -pred_out, -lambda))"
 
     print "---------------------"
     print "Train File"
