@@ -101,12 +101,10 @@ def create(w_y_direct, ulist, kerntype, dist, conn_info, ptbl, pointgrid, zeroed
     cur = conn.cursor()
     
     URef = {}
-    i = 0
     with codecs.open(rf_obs_in, 'r', encoding='utf-8') as w:
         for line in w:
             row = line.strip().split('\t')
             URef[row[0]] = int(row[1])
-            i += 1
 
     print "Number Obs Loaded: ", len(URef)
     
@@ -122,4 +120,4 @@ def create(w_y_direct, ulist, kerntype, dist, conn_info, ptbl, pointgrid, zeroed
         build_end = datetime.datetime.now()           
         print "Time Elapsed: ", (build_end - build_start)
         
-        
+    conn.close()

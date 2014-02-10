@@ -202,7 +202,19 @@ def GetWords(wordlist):
     print "Word List Length:", len(Words_List)
     return Words_List
 
-def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist):
+#This version only includes words that appear in both the wordlist and somewhere in the data
+def GetWords2(wordlist, allwords):
+    Words_List = []
+    print "Reading Word List"
+    with io.open(wordlist, 'r', encoding='utf-8') as w:
+        for line in w:
+            if line.strip() not in Words_List and line.strip() in allwords:
+                Words_List.append(line.strip())
+
+    print "Word List Length:", len(Words_List)
+    return Words_List
+
+def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist, listuse):
     print "Success Importing"
     trainFile = tf
     
@@ -214,6 +226,8 @@ def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist):
     x = 0
     y = 0
 
+    F_All = {}
+    
     #The length given here was observed from a smaller corpus of about 6000 people
     F_All_Len = 114616
 
@@ -226,13 +240,13 @@ def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist):
             #print "####NEW Person####"
             #print userID, latit, longit
             try:
-                row = person.split('\t')
+                row = person.strip().split('\t')
                 #print row[0]
                 userID = row[0]
                 latit = row[1].split(',')[0]
                 longit = row[1].split(',')[1]
-                F_Freq = dict(f.split(':') for f in row[2].split(" "))
-                if wordlist == 'any':
+                F_Freq = dict(f.strip().split(':') for f in row[2].split(" "))
+                if wordlist == 'any' or listuse == 'restricted':
                     F_All = dict(chain(F_Freq.iteritems(), F_All.iteritems()))
                 #print len(F_Freq)
                 #F_Freq = {}
@@ -254,10 +268,16 @@ def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist):
     read_time_end = datetime.datetime.now()
     print read_time_end - read_time_begin
 
-    if wordlist != 'any':
+
+    if wordlist != 'any' and listuse == 'all':
         F_All = GetWords(wordlist)
+    elif wordlist != 'any' and listuse == 'restricted':
+        F_All = GetWords2(wordlist, F_All)
 
     NumPeople = len(personList)
+
+    print "Num Obs: ", NumPeople
+    print "Num Vars: ", len(F_All)
     
     if NumPeople > len(F_All):
         print "Starting on Mode 1 (More Observations Than Variables)"
