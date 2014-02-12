@@ -223,16 +223,25 @@ def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist, listuse):
     print filename
     begin_time = datetime.datetime.now()
     personList = []
-    x = 0
+    
     y = 0
 
     F_All = {}
+
+    if listuse == 'restricted':
+        F_All = set()
+        with io.open(wordlist, 'r', encoding='utf-8') as w:
+            whitelist = set([x.strip() for x in w])
+            
+    print len(whitelist)
+
     
     #The length given here was observed from a smaller corpus of about 6000 people
     F_All_Len = 114616
 
     read_time_begin = datetime.datetime.now()
     z = 0
+    x = 0
     
     with io.open(trainFile, 'r', encoding='utf-8') as f:
         for person in f:
@@ -246,8 +255,11 @@ def Build_ref_files(tf, rf_std_out, rf_obs_out, wordlist, listuse):
                 latit = row[1].split(',')[0]
                 longit = row[1].split(',')[1]
                 F_Freq = dict(f.strip().split(':') for f in row[2].split(" "))
-                if wordlist == 'any' or listuse == 'restricted':
+                if wordlist == 'any':
                     F_All = dict(chain(F_Freq.iteritems(), F_All.iteritems()))
+                if listuse == 'restricted':
+                    #F_All = set()
+                    F_All |= set([j for j in F_Freq if j in whitelist])
                 #print len(F_Freq)
                 #F_Freq = {}
                 newPerson = Person(userID, latit, longit, F_Freq, filename, F_All_Len)
