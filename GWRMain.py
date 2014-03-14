@@ -189,6 +189,55 @@ if len(sys.argv) >= 3:
         MCV!.calc(f, ptbl, pointgrid, kerntype, dist, outmorans)
         
         
+    if mode_arg.lower() == "gi_calc":
+        import GiStatV1
+
+        print "Beginning Getis Ord Gi* Statistic Calculation"
+
+        if '-tf' in args:
+            f = args[args.index("-tf")+1]
+        elif '-df' in args:
+            f = args[args.index("-df")+1]
+        elif '-tstf' in args:
+            f = args[args.index("-tstf")+1]
+
+        try:
+            conn = args[args.index('-conn')+1]
+        except:
+            print "Problem parsing the connection information provided"
+
+        try:
+            ptbl = args[args.index("-ptbl")+1]
+        except:
+            print "ERROR ON -ptbl argument"
+            print "This argument should contain the name of the table which was created using DB_Load"
+            sys.exit("Error")
+
+
+        try:
+            if '-kern' in args:
+                fullarg = args[args.index("-kern")+1]
+                kerntype = fullarg[:fullarg.rfind('_')]
+                print kerntype
+                dist = float(fullarg[fullarg.rfind('_')+1:])
+                print dist
+            else:
+                kerntype = 'quartic'
+                dist = 900000.0
+        except:
+            print "Kernel Argument is not formmated correctly"
+            print "it should be something like quartic_900000 or epanech_800000 (units must be meters)"
+            print "run with -help for more options"
+            sys.exit("Error")
+
+        if "-pointgrid" in args:
+            pointgrid = args[args.index("-pointgrid")+1]
+        else: pointgrid = "None"
+
+        outf = args[args.index("-gi_out")+1]
+
+        GiStatV1.calc(f, ptbl, kerntype, dist, conn, outf, pointgrid)
+        
 
     if mode_arg.lower() == "test":
         import Test
@@ -245,6 +294,7 @@ elif "-help" in sys.argv:
     print "Create_Wu_Y (-ptbl, -conn, -pointgrid(OPTIONAL), -kern(OPTIONAL), -zeroed(OPTOINAL), -ulist, -wu_y_dir_out, -rf_obs_in)"
     print "Morans_Calc (-ptbl, -pointgrid, -tf, -outmoranfile, -kern, -rf_std_in, -wordlist(OPTIONAL))"
     print "Train (-tf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -lambda))"
+    print "Gi_Calc (-tf, -ptbl, -conn, -kern, -gi_out, -pointgrid(OPTIONAL))"
     print "NOT FUNCTIONAL: Test (-tstf, -rf_std_in, -b_dir_in, -pred_out)"
     print "NOT FUNCTIONAL: Train_Test (-tf, -tstf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -pred_out, -lambda))"
 
