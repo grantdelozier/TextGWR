@@ -177,8 +177,13 @@ if len(sys.argv) >= 3:
             else:
                 kerntype = 'quartic'
                 dist = 100000.0
+        except:
+            print "Kernel Argument is not formmated correctly"
+            print "it should be something like quartic_900000 or uniform_50000 (units must be meters)"
+            print "run with -help for more options"
+            sys.exit("Error")
 
-        if '-pointgrid' in args:
+        if "-pointgrid" in args:
             pointgrid = args[args.index("-pointgrid")+1]
         else: pointgrid = 'pointgrid_5_clip'
 
@@ -186,7 +191,7 @@ if len(sys.argv) >= 3:
 
         outmorans = args[args.index("-outmoranfile")+1]
 
-        MCV!.calc(f, ptbl, pointgrid, kerntype, dist, outmorans)
+        MCV1.calc(f, ptbl, pointgrid, kerntype, dist, outmorans)
         
         
     if mode_arg.lower() == "gi_calc":
@@ -200,6 +205,13 @@ if len(sys.argv) >= 3:
             f = args[args.index("-df")+1]
         elif '-tstf' in args:
             f = args[args.index("-tstf")+1]
+
+        if '-wordlist' in args:
+            wordlist = args[args.index("-wordlist")+1]
+            if '-listuse' in args:
+                listuse = args[args.index("-listuse")+1]
+            else: listuse = 'NA'
+        else: wordlist = 'any'
 
         try:
             conn = args[args.index('-conn')+1]
@@ -217,7 +229,7 @@ if len(sys.argv) >= 3:
         try:
             if '-kern' in args:
                 fullarg = args[args.index("-kern")+1]
-                kerntype = fullarg[:fullarg.rfind('_')]
+                kerntype = fullarg[:fullarg.rfind('_')].lower()
                 print kerntype
                 dist = float(fullarg[fullarg.rfind('_')+1:])
                 print dist
@@ -236,7 +248,7 @@ if len(sys.argv) >= 3:
 
         outf = args[args.index("-gi_out")+1]
 
-        GiStatV1.calc(f, ptbl, kerntype, dist, conn, outf, pointgrid)
+        GiStatV1.calc(f, ptbl, kerntype, dist, conn, outf, wordlist, listuse, pointgrid)
         
 
     if mode_arg.lower() == "test":
