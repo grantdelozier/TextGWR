@@ -159,6 +159,37 @@ if len(sys.argv) >= 3:
 
         Train.train(f, rf_obs_in, rf_std_in, wu_y_direct, ulist, kerntype, lam, b_direct)
 
+    if mode_arg.lower() == "morans_calc":
+        import MCV1
+
+        print "Beginning Morans Calc Process"
+
+        if '-tf' in args:
+            f = args[args.index("-tf")+1]
+
+        try:
+            if '-kern' in args:
+                fullarg = args[args.index("-kern")+1]
+                kerntype = fullarg[:fullarg.rfind('_')]
+                print kerntype
+                dist = float(fullarg[fullarg.rfind('_')+1:])
+                print dist
+            else:
+                kerntype = 'quartic'
+                dist = 100000.0
+
+        if '-pointgrid' in args:
+            pointgrid = args[args.index("-pointgrid")+1]
+        else: pointgrid = 'pointgrid_5_clip'
+
+        ptbl = args[args.index("-ptbl")+1]
+
+        outmorans = args[args.index("-outmoranfile")+1]
+
+        MCV!.calc(f, ptbl, pointgrid, kerntype, dist, outmorans)
+        
+        
+
     if mode_arg.lower() == "test":
         import Test
 
@@ -212,6 +243,7 @@ elif "-help" in sys.argv:
     print "NOT FUNCTIONAL: Create_Wu ((-tf OR -df OR -tstf), -kern, -ulist, -wu_dir_out)"
     print "NOT FUNCTIONAL: Create_Y ((-tf OR -df OR -tstf), -ulist, -y_dir_out)"
     print "Create_Wu_Y (-ptbl, -conn, -pointgrid(OPTIONAL), -kern(OPTIONAL), -zeroed(OPTOINAL), -ulist, -wu_y_dir_out, -rf_obs_in)"
+    print "Morans_Calc (-ptbl, -pointgrid, -tf, -outmoranfile, -kern, -rf_std_in, -wordlist(OPTIONAL))"
     print "Train (-tf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -lambda))"
     print "NOT FUNCTIONAL: Test (-tstf, -rf_std_in, -b_dir_in, -pred_out)"
     print "NOT FUNCTIONAL: Train_Test (-tf, -tstf, (-wu_y_dir_in OR (-y_dir_in AND -wu_dir_in), -rf_std_in, -rf_obs_in, -ulist, -b_dir_out, -pred_out, -lambda))"

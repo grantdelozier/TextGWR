@@ -49,10 +49,10 @@ def BuildWuMatrix(LocId, User_Lookup, kerntype, dist, cur, ptbl, pointgrid, zero
     print "########Building W(u) matrix########"
     if kerntype == 'epanech' and zeroed == True:
         #Epanechnikov Kernel function, values past dist threshold are zeroed
-        cur.execute("SELECT %s.uid, .75 * (1 - power((ST_Distance_Sphere(%s.geom, %s.coord)/%s), 2)) FROM %s, %s WHERE %s.id = %s and (ST_Distance_Sphere(%s.geom, %s.coord) > %s);" % (ptbl, pointgrid, ptbl, dist, ptbl, pointgrid, pointgrid, '%s', pointgrid, ptbl, dist), (LocId, ))
+        cur.execute("SELECT %s.uid, .75 * (1 - power((ST_Distance_Sphere(%s.geom, %s.coord)/%s), 2)) FROM %s, %s WHERE %s.id = %s and (ST_Distance_Sphere(%s.geom, %s.coord) < %s);" % (ptbl, pointgrid, ptbl, dist, ptbl, pointgrid, pointgrid, '%s', pointgrid, ptbl, dist), (LocId, ))
     if kerntype == 'quartic' and zeroed == True:
         #Quartic Biweight Kernel function, values past dist threshold are zeroed
-        cur.execute("SELECT %s.uid, power(1 - power((ST_Distance_Sphere(%s.geom, %s.coord)/%s), 2), 2) FROM %s, %s WHERE %s.id = %s and (ST_Distance_Sphere(%s.geom, %s.coord) > %s);" % (ptbl, pointgrid, ptbl, dist, ptbl, pointgrid, pointgrid, '%s', pointgrid, ptbl, dist), (LocId, ))
+        cur.execute("SELECT %s.uid, power(1 - power((ST_Distance_Sphere(%s.geom, %s.coord)/%s), 2), 2) FROM %s, %s WHERE %s.id = %s and (ST_Distance_Sphere(%s.geom, %s.coord) < %s);" % (ptbl, pointgrid, ptbl, dist, ptbl, pointgrid, pointgrid, '%s', pointgrid, ptbl, dist), (LocId, ))
     elif kerntype == 'quartic' and zeroed == False:
         #Quartic Biweight Kernel function, values past dist threshold will not be zeroed
         cur.execute("SELECT %s.uid, power(1 - power((ST_Distance_Sphere(%s.geom, %s.coord)/%s), 2), 2) FROM %s, %s WHERE %s.id = %s;" % (ptbl, pointgrid, ptbl, dist, ptbl, pointgrid, pointgrid, '%s'), (LocId, ))
